@@ -18,7 +18,7 @@ public class FilmController {
 
     private TreeMap<Integer, Film> films = new TreeMap<>();
 
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
+    private Logger log = LoggerFactory.getLogger(FilmController.class);
 
     private LocalDate minDate = LocalDate.of(1895, 12, 28);
 

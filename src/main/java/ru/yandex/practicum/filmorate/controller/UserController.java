@@ -17,7 +17,7 @@ public class UserController {
     private int id = 1;
 
     TreeMap<Integer, User> users = new TreeMap<>();
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
+    private final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {

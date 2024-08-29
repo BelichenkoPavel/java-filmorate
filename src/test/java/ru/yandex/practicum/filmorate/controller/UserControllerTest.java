@@ -60,6 +60,14 @@ public class UserControllerTest {
 
         users = userController.getUsers();
         assertEquals(1, users.size(), "Количество пользователей должно быть 1");
+
+        user = getUser();
+        user.setName(null);
+
+        userController.createUser(user);
+        users = userController.getUsers();
+
+        assertEquals(user.getName(), users.get(1).getLogin(), "Имя пользователя должно быть равно его логину");
     }
 
     @Test

@@ -48,11 +48,6 @@ public class UserController {
     }
 
     private void validate(User user) throws ValidationException {
-        if (user.getName().isEmpty() || user.getName().isBlank()) {
-            log.error("Name is empty");
-            throw new ValidationException("Name is empty");
-        }
-
         if (user.getEmail().isEmpty() || user.getEmail().isBlank()) {
             log.error("Email is empty");
             throw new ValidationException("Email is empty");
@@ -71,6 +66,11 @@ public class UserController {
         if (user.getLogin().contains(" ")) {
             log.error("Login contains spaces");
             throw new ValidationException("Login contains spaces");
+        }
+
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+            log.error("Name is empty");
+            user.setName(user.getLogin());
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {

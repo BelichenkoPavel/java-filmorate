@@ -80,6 +80,6 @@ public class UserController {
     }
 
     private int getId() {
-        return id++;
+        return ++id;
     }
 }

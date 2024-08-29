@@ -14,7 +14,7 @@ import java.util.TreeMap;
 @RequestMapping("/films")
 public class FilmController {
 
-    private int id = 1;
+    private int id = 0;
 
     private TreeMap<Integer, Film> films = new TreeMap<>();
 

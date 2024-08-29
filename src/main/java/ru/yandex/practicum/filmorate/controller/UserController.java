@@ -14,7 +14,7 @@ import java.util.TreeMap;
 @RequestMapping("/users")
 public class UserController {
 
-    private int id = 1;
+    private int id = 0;
 
     TreeMap<Integer, User> users = new TreeMap<>();
     private final Logger log = LoggerFactory.getLogger(UserController.class);

@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.TreeMap;
 
 @RestController
@@ -18,6 +21,8 @@ public class UserController {
 
     TreeMap<Integer, User> users = new TreeMap<>();
     private final Logger log = LoggerFactory.getLogger(UserController.class);
+
+    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {
@@ -48,34 +53,18 @@ public class UserController {
     }
 
     private void validate(User user) throws ValidationException {
-        if (user.getEmail().isEmpty() || user.getEmail().isBlank()) {
-            log.error("Email is empty");
-            throw new ValidationException("Email is empty");
-        }
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (violations.size() > 0) {
+            violations.forEach(error -> {
+                log.error(error.getMessage());
+            });
 
-        if (!user.getEmail().contains("@")) {
-            log.error("Email must contain @");
-            throw new ValidationException("Email is invalid");
-        }
-
-        if (user.getLogin().isEmpty() || user.getLogin().isBlank()) {
-            log.error("Login is empty");
-            throw new ValidationException("Login is empty");
-        }
-
-        if (user.getLogin().contains(" ")) {
-            log.error("Login contains spaces");
-            throw new ValidationException("Login contains spaces");
+            throw new ValidationException("Validation exception");
         }
 
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             log.error("Name is empty");
             user.setName(user.getLogin());
-        }
-
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("birthday is after today");
-            throw new ValidationException("Validation exception");
         }
     }
 

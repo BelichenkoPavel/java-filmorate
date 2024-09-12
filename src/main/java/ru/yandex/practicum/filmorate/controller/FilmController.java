@@ -1,79 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import jakarta.validation.ConstraintViolation;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private int id = 0;
+    private FilmService filmService;
 
-    private TreeMap<Integer, Film> films = new TreeMap<>();
-
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    private Logger log = LoggerFactory.getLogger(FilmController.class);
-
-    private LocalDate minDate = LocalDate.of(1895, 12, 28);
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) throws ValidationException {
-        validate(film);
-        film.setId(getId());
-
-        films.put(film.getId(), film);
-
-        return film;
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
-        validate(film);
-
-        if (!films.containsKey(film.getId())) {
-            log.error("Film not found");
-            throw new ValidationException("Film not found");
-        }
-
-        films.put(film.getId(), film);
-
-        return film;
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
     public ArrayList<Film> getFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.getFilms();
     }
 
-    private void validate(Film film) throws ValidationException {
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        if (violations.size() > 0) {
-            violations.forEach(error -> {
-                log.error(error.getMessage());
-            });
-
-            throw new ValidationException("Validation exception");
-        }
-
-        if (film.getReleaseDate().isBefore(minDate)) {
-            log.error("Film releaseDate must not be before 1895-12-28");
-            throw new ValidationException("Validation exception");
-        }
+    @GetMapping("/{filmId}")
+    public Film getFilm(@PathVariable Long filmId) {
+        return filmService.getFilm(filmId);
     }
 
-    private int getId() {
-        return ++id;
+    @PutMapping("/{id}/like/{userId}")
+    public void likeFilm(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
+        filmService.likeFilm(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLikeFilm(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
+        filmService.deleteLikeFilm(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(required = false) Integer count) {
+        return filmService.getPopularFilms(count);
     }
 }

@@ -2,8 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,13 +17,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
-    FilmController filmController = new FilmController();
+    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(userStorage);
+
+    InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+    FilmService filmService = new FilmService(filmStorage, userService);
+    FilmController filmController = new FilmController(filmService);
 
     Film film = getFilm();
 
     @BeforeEach
     public void setUp() {
-        filmController = new FilmController();
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+
+        filmStorage = new InMemoryFilmStorage();
+        filmService = new FilmService(filmStorage, userService);
+        filmController = new FilmController(filmService);
         film = getFilm();
     }
 
@@ -81,7 +96,7 @@ public class FilmControllerTest {
 
         film = getFilm();
         film.setId(9999);
-        assertThrows(ValidationException.class, () -> filmController.updateFilm(film), "Невозможно обновить несуществующий фильм");
+        assertThrows(NotFoundException.class, () -> filmController.updateFilm(film), "Невозможно обновить несуществующий фильм");
     }
 
     private Film getFilm() {

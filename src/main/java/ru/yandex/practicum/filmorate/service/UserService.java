@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -63,7 +64,7 @@ public class UserService {
         }
     }
 
-    public ArrayList<User> getUsers() {
+    public List<User> getUsers() {
         return userStorage.getUsers();
     }
 

@@ -11,7 +11,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     private int id = 0;
 
-    TreeMap<Integer, User> users = new TreeMap<>();
+    private TreeMap<Integer, User> users = new TreeMap<>();
 
     @Override
     public void addUser(User user) {

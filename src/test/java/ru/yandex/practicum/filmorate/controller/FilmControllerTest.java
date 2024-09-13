@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,7 +39,7 @@ public class FilmControllerTest {
 
     @Test
     public void testAddFilm() throws ValidationException {
-        ArrayList<Film> films = filmController.getFilms();
+        List<Film> films = filmController.getFilms();
 
         assertEquals(0, films.size(), "Список должен быть пустым");
 
@@ -70,7 +70,7 @@ public class FilmControllerTest {
 
     @Test
     public void testGetFilms() throws ValidationException {
-        ArrayList<Film> films = filmController.getFilms();
+        List<Film> films = filmController.getFilms();
         assertEquals(0, films.size(), "Список должен быть пустым");
 
         filmController.addFilm(film);
@@ -85,7 +85,7 @@ public class FilmControllerTest {
     public void testUpdateFilm() throws ValidationException {
         filmController.addFilm(film);
 
-        ArrayList<Film> films = filmController.getFilms();
+        List<Film> films = filmController.getFilms();
         assertEquals(film.getName(), films.get(0).getName(), "Названия должны совпадать");
 
         film.setName("Звёздные войны: Эпизод 5 – Империя наносит ответный удар");

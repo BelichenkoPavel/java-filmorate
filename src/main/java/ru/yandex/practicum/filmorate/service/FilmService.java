@@ -55,7 +55,7 @@ public class FilmService {
         return film;
     }
 
-    public ArrayList<Film> getFilms() {
+    public List<Film> getFilms() {
         return filmStorage.getAllFilms();
     }
 
@@ -105,7 +105,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        ArrayList<Film> films = getFilms();
+        List<Film> films = getFilms();
 
         films.sort((film1, film2) -> {
             int likes1 = film1.getLikes().size();

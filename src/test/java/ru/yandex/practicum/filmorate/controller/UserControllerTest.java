@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +32,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUser() throws ValidationException {
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(0, users.size(), "Список пользователей должен быть пустым");
 
         userController.createUser(user);
@@ -79,7 +79,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUsers() throws ValidationException {
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(0, users.size(), "Список пользователей должен быть пустым");
 
         userController.createUser(user);
@@ -94,7 +94,7 @@ public class UserControllerTest {
     public void testUpdateUser() throws ValidationException {
         userController.createUser(user);
 
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(user.getName(), users.get(0).getName(), "Имена пользователя должны быть равны");
 
         user.setName("User name2");

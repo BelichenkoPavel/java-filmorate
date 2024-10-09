@@ -2,30 +2,37 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
-    UserController userController = new UserController();
+    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(userStorage);
+    UserController userController = new UserController(userService);
 
     User user = getUser();
 
     @BeforeEach
     public void setUp() {
-        userController = new UserController();
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+        userController = new UserController(userService);
 
         user = getUser();
     }
 
     @Test
     public void testCreateUser() throws ValidationException {
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(0, users.size(), "Список пользователей должен быть пустым");
 
         userController.createUser(user);
@@ -72,7 +79,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUsers() throws ValidationException {
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(0, users.size(), "Список пользователей должен быть пустым");
 
         userController.createUser(user);
@@ -87,7 +94,7 @@ public class UserControllerTest {
     public void testUpdateUser() throws ValidationException {
         userController.createUser(user);
 
-        ArrayList<User> users = userController.getUsers();
+        List<User> users = userController.getUsers();
         assertEquals(user.getName(), users.get(0).getName(), "Имена пользователя должны быть равны");
 
         user.setName("User name2");
@@ -98,7 +105,7 @@ public class UserControllerTest {
 
         user = getUser();
         user.setId(9999);
-        assertThrows(ValidationException.class, () -> userController.updateUser(user), "Невозможно обновить несуществующего пользователя");
+        assertThrows(NotFoundException.class, () -> userController.updateUser(user), "Невозможно обновить несуществующего пользователя");
 
     }
 

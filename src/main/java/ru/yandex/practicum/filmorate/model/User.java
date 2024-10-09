@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -26,4 +28,30 @@ public class User {
     @PastOrPresent(message = "дата рождения не может быть в будущем")
     @NotNull(message = "дата рождения обязательна")
     private LocalDate birthday;
+
+    private Set<Long> friends;
+
+    public Set<Long> getFriends() {
+        if (friends == null) {
+            friends = new HashSet<>();
+        }
+
+        return friends;
+    }
+
+    public void addFriend(User friend) {
+        if (friends == null) {
+            friends = new HashSet<>();
+        }
+
+        friends.add((long) friend.getId());
+    }
+
+    public void deleteFriend(User friend) {
+        if (friends == null) {
+            friends = new HashSet<>();
+        }
+
+        friends.remove((long) friend.getId());
+    }
 }

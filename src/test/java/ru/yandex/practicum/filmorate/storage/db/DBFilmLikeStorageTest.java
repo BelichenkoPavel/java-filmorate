@@ -96,7 +96,7 @@ public class DBFilmLikeStorageTest {
         genres.add(genre1);
         genres.add(genre2);
 
-        MPA mpa = MPA.builder().id(1l).build();
+        MPA mpa = MPA.builder().id(1L).build();
 
         return Film.builder()
                 .name("Звёздные войны: Эпизод 4 – Новая надежда")

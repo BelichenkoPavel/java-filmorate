@@ -45,7 +45,7 @@ public class DBFilmStorageTest {
         assertEquals(1, films.size());
 
         Film filmWithWrongMPA = getFilm();
-        filmWithWrongMPA.setMpa(MPA.builder().id(9999l).build());
+        filmWithWrongMPA.setMpa(MPA.builder().id(9999L).build());
 
         assertThrows(ValidationException.class, () -> filmStorage.addFilm(filmWithWrongMPA));
 
@@ -57,7 +57,7 @@ public class DBFilmStorageTest {
         assertEquals(0, filmWithoutGenre.getGenres().size());
 
         Film filmWithWrongGenre = getFilm();
-        filmWithWrongGenre.getGenres().add(Genre.builder().id(9999l).build());
+        filmWithWrongGenre.getGenres().add(Genre.builder().id(9999L).build());
 
         assertThrows(ValidationException.class, () -> filmStorage.addFilm(filmWithWrongGenre));
     }
@@ -80,7 +80,7 @@ public class DBFilmStorageTest {
 
     @Test
     public void testGetEmptyFilm() {
-        Film film = filmStorage.getFilm(1l);
+        Film film = filmStorage.getFilm(1L);
 
         assertEquals(null, film);
     }
@@ -114,7 +114,7 @@ public class DBFilmStorageTest {
         genres.add(genre1);
         genres.add(genre2);
 
-        MPA mpa = MPA.builder().id(1l).build();
+        MPA mpa = MPA.builder().id(1L).build();
 
         return Film.builder()
                 .name("Звёздные войны: Эпизод 4 – Новая надежда")

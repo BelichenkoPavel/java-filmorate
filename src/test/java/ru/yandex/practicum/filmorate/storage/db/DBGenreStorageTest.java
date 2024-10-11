@@ -39,8 +39,8 @@ public class DBGenreStorageTest {
 
     @Test
     public void testGetById() {
-        Genre genre = genreStorage.getById(1l);
+        Genre genre = genreStorage.getById(1L);
 
-        assertEquals(genre.getId(), 1l);
+        assertEquals(genre.getId(), 1L);
     }
 }

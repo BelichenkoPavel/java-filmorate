@@ -39,8 +39,8 @@ public class DBMPAStorageTest {
 
     @Test
     public void testGetById() {
-        MPA mpa = dbmpaStorage.getById(1l);
+        MPA mpa = dbmpaStorage.getById(1L);
 
-        assertEquals(mpa.getId(), 1l);
+        assertEquals(mpa.getId(), 1L);
     }
 }

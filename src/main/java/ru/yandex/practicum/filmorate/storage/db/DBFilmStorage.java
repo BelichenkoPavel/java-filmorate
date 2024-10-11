@@ -160,7 +160,7 @@ public class DBFilmStorage implements FilmStorage {
                 .mpa(mpa)
                 .build();
 
-        List <Genre> genres = dbGenreStorage.getGenresByFilm(film);
+        List<Genre> genres = dbGenreStorage.getGenresByFilm(film);
         film.setGenres(new HashSet<>(genres));
 
         return film;

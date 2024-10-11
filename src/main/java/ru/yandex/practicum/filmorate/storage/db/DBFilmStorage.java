@@ -30,15 +30,15 @@ public class DBFilmStorage implements FilmStorage {
 
     private final DBFilmLikeStorage dbFilmLikeStorage;
 
-    String SELECT_BY_ID = "SELECT * FROM \"film\" WHERE ID = ?";
+    private String selectById = "SELECT * FROM \"film\" WHERE ID = ?";
 
-    String SELECT_LIST = "SELECT * FROM \"film\"";
+    private String selectList = "SELECT * FROM \"film\"";
 
-    String INSERT = "INSERT INTO \"film\" (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
+    private String insert = "INSERT INTO \"film\" (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
 
-    String UPDATE = "UPDATE \"film\" SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE ID = ?";
+    private String update = "UPDATE \"film\" SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE ID = ?";
 
-    String GET_POPULAR_FILMS = "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID  FROM \"film\" f \n" +
+    private String getPopularFilms = "SELECT f.ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID  FROM \"film\" f \n" +
             "INNER JOIN \"film_like\" fl ON fl.FILM_ID = f.ID\n" +
             "GROUP BY fl.FILM_ID\n" +
             "ORDER BY count(fl.FILM_ID) DESC\n" +
@@ -67,7 +67,7 @@ public class DBFilmStorage implements FilmStorage {
         }
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(INSERT, new String[]{"ID"});
+            PreparedStatement ps = connection.prepareStatement(insert, new String[]{"ID"});
 
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
@@ -106,7 +106,7 @@ public class DBFilmStorage implements FilmStorage {
         }
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(UPDATE);
+            PreparedStatement ps = connection.prepareStatement(update);
 
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
@@ -126,7 +126,7 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Long filmId) {
-        List<Film> result = jdbcTemplate.query(SELECT_BY_ID, this::mapToFilm, filmId);
+        List<Film> result = jdbcTemplate.query(selectById, this::mapToFilm, filmId);
 
         if (result.isEmpty()) {
             return null;
@@ -137,7 +137,7 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        List<Film> result = jdbcTemplate.query(SELECT_LIST, this::mapToFilm);
+        List<Film> result = jdbcTemplate.query(selectList, this::mapToFilm);
 
         if (result.isEmpty()) {
             return null;
@@ -168,7 +168,7 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(Integer count) {
-        List<Film> result = jdbcTemplate.query(GET_POPULAR_FILMS, this::mapToFilm, count);
+        List<Film> result = jdbcTemplate.query(getPopularFilms, this::mapToFilm, count);
 
         if (result.isEmpty()) {
             return null;

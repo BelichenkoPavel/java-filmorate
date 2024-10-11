@@ -20,28 +20,28 @@ import java.util.*;
 public class DBUserStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    String SELECT_BY_ID = "SELECT * FROM \"user\" WHERE ID = ?";
+    private String selectById = "SELECT * FROM \"user\" WHERE ID = ?";
 
-    String SELECT_BY_IDS = "SELECT * FROM \"user\" WHERE ID IN (?)";
+    private String selectByIds = "SELECT * FROM \"user\" WHERE ID IN (?)";
 
-    String SELECT_LIST = "SELECT * FROM \"user\"";
+    private String selectList = "SELECT * FROM \"user\"";
 
-    String INSERT = "INSERT INTO \"user\" (EMAIL, LOGIN, NAME, BIRTHDAY) VALUES (?, ?, ?, ?)";
+    private String insert = "INSERT INTO \"user\" (EMAIL, LOGIN, NAME, BIRTHDAY) VALUES (?, ?, ?, ?)";
 
-    String UPDATE = "UPDATE \"user\" SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE ID = ?";
+    private String update = "UPDATE \"user\" SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE ID = ?";
 
-    String ADD_FRIEND = "INSERT INTO \"friend\" (USER_ID_1, USER_ID_2) VALUES (?, ?)";
+    private String addFriend = "INSERT INTO \"friend\" (USER_ID_1, USER_ID_2) VALUES (?, ?)";
 
-    String GET_FRIENDS = "SELECT * FROM \"friend\" WHERE USER_ID_1 = ?";
+    private String getFriends = "SELECT * FROM \"friend\" WHERE USER_ID_1 = ?";
 
-    String REMOVE_FRIEND = "DELETE FROM \"friend\" WHERE USER_ID_1 = ? AND USER_ID_2 = ?";
+    private String removeFriend = "DELETE FROM \"friend\" WHERE USER_ID_1 = ? AND USER_ID_2 = ?";
 
     @Override
     public void addUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(INSERT, new String[]{"ID"});
+            PreparedStatement ps = connection.prepareStatement(insert, new String[]{"ID"});
 
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getLogin());
@@ -59,7 +59,7 @@ public class DBUserStorage implements UserStorage {
     @Override
     public void updateUser(User user) {
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(UPDATE);
+            PreparedStatement ps = connection.prepareStatement(update);
 
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getLogin());
@@ -73,7 +73,7 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public User getUser(Long userId) {
-        List<User> result = jdbcTemplate.query(SELECT_BY_ID, this::mapToUser, userId);
+        List<User> result = jdbcTemplate.query(selectById, this::mapToUser, userId);
         if (result.isEmpty()) {
             return null;
         }
@@ -82,7 +82,7 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public List<User> getUsers() {
-        List<User> result = jdbcTemplate.query(SELECT_LIST, this::mapToUser);
+        List<User> result = jdbcTemplate.query(selectList, this::mapToUser);
 
         if (result.isEmpty()) {
             return null;
@@ -93,7 +93,7 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public void addFriend(User user, User friend) {
-        final List<Friend> result = jdbcTemplate.query(GET_FRIENDS, this::mapToFriend, user.getId());
+        final List<Friend> result = jdbcTemplate.query(getFriends, this::mapToFriend, user.getId());
 
         if (!result.isEmpty()) {
             if (result.get(0).getUserId1() == user.getId()) {
@@ -102,7 +102,7 @@ public class DBUserStorage implements UserStorage {
         }
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(ADD_FRIEND);
+            PreparedStatement ps = connection.prepareStatement(addFriend);
 
             ps.setLong(1, user.getId());
             ps.setLong(2, friend.getId());
@@ -113,12 +113,12 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public void deleteFriend(User user, User friend) {
-        jdbcTemplate.update(REMOVE_FRIEND, user.getId(), friend.getId());
+        jdbcTemplate.update(removeFriend, user.getId(), friend.getId());
     }
 
     @Override
     public ArrayList<User> getFriends(User user) {
-        List<Friend> result = jdbcTemplate.query(GET_FRIENDS, this::mapToFriend, user.getId());
+        List<Friend> result = jdbcTemplate.query(getFriends, this::mapToFriend, user.getId());
 
         if (result.isEmpty()) {
             return new ArrayList();
@@ -143,8 +143,8 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public ArrayList<User> getFriendsOfFriends(User user, User friend) {
-        List<Friend> friendsList1 = jdbcTemplate.query(GET_FRIENDS, this::mapToFriend, user.getId());
-        List<Friend> friendsList2 = jdbcTemplate.query(GET_FRIENDS, this::mapToFriend, friend.getId());
+        List<Friend> friendsList1 = jdbcTemplate.query(getFriends, this::mapToFriend, user.getId());
+        List<Friend> friendsList2 = jdbcTemplate.query(getFriends, this::mapToFriend, friend.getId());
 
         ArrayList<Friend> friendsList = new ArrayList<>();
 
@@ -168,7 +168,7 @@ public class DBUserStorage implements UserStorage {
 
         friendsIds = friendsIds.substring(0, friendsIds.length() - 1);
 
-        ArrayList<User> users = (ArrayList<User>) jdbcTemplate.query(SELECT_BY_IDS, this::mapToUser, friendsIds);
+        ArrayList<User> users = (ArrayList<User>) jdbcTemplate.query(selectByIds, this::mapToUser, friendsIds);
 
         return users;
     }

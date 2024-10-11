@@ -14,17 +14,17 @@ import java.sql.PreparedStatement;
 public class DBFilmGenreStorage implements FilmGenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    String INSERT = "INSERT INTO \"film_genre\" (FILM_ID, GENRE_ID) VALUES (?, ?)";
+    private String insert = "INSERT INTO \"film_genre\" (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
-    String DELETE = "DELETE from \"film_genre\" WHERE FILM_ID = ?";
+    private String delete = "DELETE from \"film_genre\" WHERE FILM_ID = ?";
 
     @Override
     public void addFilmGenres(Film film) {
-        jdbcTemplate.update(DELETE, film.getId());
+        jdbcTemplate.update(delete, film.getId());
 
         for (Genre genre: film.getGenres()) {
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(INSERT);
+                PreparedStatement ps = connection.prepareStatement(insert);
 
                 ps.setLong(1, film.getId());
                 ps.setLong(2, genre.getId());

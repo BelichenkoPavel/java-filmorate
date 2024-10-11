@@ -14,9 +14,9 @@ import java.util.List;
 public class DBMPAStorage implements MPAStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    String SELECT_BY_ID= "SELECT * FROM \"mpa\" WHERE ID = ?";
+    private String selectById = "SELECT * FROM \"mpa\" WHERE ID = ?";
 
-    String SELECT_LIST = "SELECT * FROM \"mpa\"";
+    private String selectList = "SELECT * FROM \"mpa\"";
 
     @Autowired
     public DBMPAStorage(JdbcTemplate jdbcTemplate) {
@@ -25,7 +25,7 @@ public class DBMPAStorage implements MPAStorage {
 
     @Override
     public MPA getById(Long id) {
-        List<MPA> result = jdbcTemplate.query(SELECT_BY_ID, this::mapToMPA, id);
+        List<MPA> result = jdbcTemplate.query(selectById, this::mapToMPA, id);
 
         if (result.isEmpty()) {
             return null;
@@ -36,7 +36,7 @@ public class DBMPAStorage implements MPAStorage {
 
     @Override
     public List<MPA> getList() {
-        List<MPA> result = jdbcTemplate.query(SELECT_LIST, this::mapToMPA);
+        List<MPA> result = jdbcTemplate.query(selectList, this::mapToMPA);
 
         if (result.isEmpty()) {
             return null;

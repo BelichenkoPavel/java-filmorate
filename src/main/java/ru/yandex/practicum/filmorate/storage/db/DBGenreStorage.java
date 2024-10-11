@@ -19,18 +19,18 @@ import java.util.List;
 public class DBGenreStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    String SELECT_BY_ID = "SELECT * FROM \"genre\" WHERE ID = ?";
+    private String selectById = "SELECT * FROM \"genre\" WHERE ID = ?";
 
-    String SELECT_LIST = "SELECT * FROM \"genre\"";
+    private String selectList = "SELECT * FROM \"genre\"";
 
-    String SELECT_GENRES_BY_FILM_ID = "SELECT * FROM \"genre\" g\n" +
+    private String selectGenresByFilmId = "SELECT * FROM \"genre\" g\n" +
             "INNER JOIN \"film_genre\" fg ON fg.GENRE_ID = g.ID\n" +
             "WHERE fg.FILM_ID = ?" +
             "ORDER BY g.ID";
 
     @Override
     public Genre getById(Long genreId) {
-        List<Genre> result = jdbcTemplate.query(SELECT_BY_ID, this::mapToGenre, genreId);
+        List<Genre> result = jdbcTemplate.query(selectById, this::mapToGenre, genreId);
 
         if (result.isEmpty()) {
             throw new NotFoundException("Genre with id " + genreId + " not found");
@@ -58,12 +58,12 @@ public class DBGenreStorage implements GenreStorage {
     }
 
     public List<Genre> getGenresByFilm(Film film) {
-        return jdbcTemplate.query(SELECT_GENRES_BY_FILM_ID, this::mapToGenre, film.getId());
+        return jdbcTemplate.query(selectGenresByFilmId, this::mapToGenre, film.getId());
     }
 
     @Override
     public List<Genre> getList() {
-        List<Genre> result = jdbcTemplate.query(SELECT_LIST, this::mapToGenre);
+        List<Genre> result = jdbcTemplate.query(selectList, this::mapToGenre);
 
         if (result.isEmpty()) {
             return null;

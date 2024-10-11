@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
-    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    UserStorage userStorage = new InMemoryUserStorage();
     UserService userService = new UserService(userStorage);
     UserController userController = new UserController(userService);
 
@@ -23,8 +24,6 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        userStorage = new InMemoryUserStorage();
-        userService = new UserService(userStorage);
         userController = new UserController(userService);
 
         user = getUser();
@@ -104,7 +103,7 @@ public class UserControllerTest {
         assertEquals("User name2", users.get(0).getName(), "Имена пользователя должны быть равны");
 
         user = getUser();
-        user.setId(9999);
+        user.setId(9999L);
         assertThrows(NotFoundException.class, () -> userController.updateUser(user), "Невозможно обновить несуществующего пользователя");
 
     }

@@ -7,8 +7,10 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,10 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
-    InMemoryUserStorage userStorage = new InMemoryUserStorage();
+    FilmStorage filmStorage = new InMemoryFilmStorage();
+    UserStorage userStorage = new InMemoryUserStorage();
     UserService userService = new UserService(userStorage);
-
-    InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
     FilmService filmService = new FilmService(filmStorage, userService);
     FilmController filmController = new FilmController(filmService);
 
@@ -28,11 +29,6 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void setUp() {
-        userStorage = new InMemoryUserStorage();
-        userService = new UserService(userStorage);
-
-        filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage, userService);
         filmController = new FilmController(filmService);
         film = getFilm();
     }
@@ -95,7 +91,7 @@ public class FilmControllerTest {
         assertEquals("Звёздные войны: Эпизод 5 – Империя наносит ответный удар", films.get(0).getName(), "Названия должны совпадать");
 
         film = getFilm();
-        film.setId(9999);
+        film.setId(9999L);
         assertThrows(NotFoundException.class, () -> filmController.updateFilm(film), "Невозможно обновить несуществующий фильм");
     }
 

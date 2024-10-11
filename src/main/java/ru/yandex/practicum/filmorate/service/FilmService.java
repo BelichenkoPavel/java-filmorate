@@ -6,13 +6,13 @@ import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,12 +26,15 @@ public class FilmService {
 
     private LocalDate minDate = LocalDate.of(1895, 12, 28);
 
+    @Autowired
+    @Qualifier("dbFilmStorage")
     private FilmStorage filmStorage;
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("dbFilmStorage") FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -47,7 +50,7 @@ public class FilmService {
     public Film updateFilm(Film film) throws ValidationException {
         validate(film);
 
-        getFilm((long) film.getId());
+        getFilm(film.getId());
 
         filmStorage.updateFilm(film);
 
@@ -87,40 +90,19 @@ public class FilmService {
 
     public void likeFilm(Long id, Long userId) {
         userService.getUser(userId);
-        Film film = getFilm(id);
-
-        film.addLike(userId);
-
-        updateFilm(film);
+        filmStorage.likeFilm(id, userId);
     }
 
     public void deleteLikeFilm(Long id, Long userId) {
         userService.getUser(userId);
-        Film film = getFilm(id);
-
-        film.removeLike(userId);
-
-        updateFilm(film);
+        filmStorage.deleteLikeFilm(id, userId);
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        List<Film> films = getFilms();
-
-        films.sort((film1, film2) -> {
-            int likes1 = film1.getLikes().size();
-            int likes2 = film2.getLikes().size();
-
-            return likes2 - likes1;
-        });
-
         if (count != null) {
             count = 10;
         }
 
-        if (count > films.size()) {
-            count = films.size();
-        }
-
-        return films.subList(0, count);
+        return filmStorage.getPopularFilms(count);
     }
 }

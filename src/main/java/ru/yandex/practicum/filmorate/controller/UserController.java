@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -10,11 +11,13 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
-    private final UserService userService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {

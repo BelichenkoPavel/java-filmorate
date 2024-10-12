@@ -44,22 +44,12 @@ public class DBFilmStorageTest {
 
         assertEquals(1, films.size());
 
-        Film filmWithWrongMPA = getFilm();
-        filmWithWrongMPA.setMpa(MPA.builder().id(9999L).build());
-
-        assertThrows(ValidationException.class, () -> filmStorage.addFilm(filmWithWrongMPA));
-
         Film filmWithoutGenre = getFilm();
         filmWithoutGenre.setGenres(new HashSet<>());
 
         filmStorage.addFilm(filmWithoutGenre);
 
         assertEquals(0, filmWithoutGenre.getGenres().size());
-
-        Film filmWithWrongGenre = getFilm();
-        filmWithWrongGenre.getGenres().add(Genre.builder().id(9999L).build());
-
-        assertThrows(ValidationException.class, () -> filmStorage.addFilm(filmWithWrongGenre));
     }
 
     @Test

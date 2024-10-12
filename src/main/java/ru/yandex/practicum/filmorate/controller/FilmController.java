@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -19,12 +17,12 @@ public class FilmController {
     private FilmService filmService;
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) throws ValidationException {
+    public Film addFilm(@RequestBody Film film) {
         return filmService.addFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
@@ -39,12 +37,12 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void likeFilm(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
+    public void likeFilm(@PathVariable Long id, @PathVariable Long userId) {
         filmService.likeFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLikeFilm(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
+    public void deleteLikeFilm(@PathVariable Long id, @PathVariable Long userId) {
         filmService.deleteLikeFilm(id, userId);
     }
 

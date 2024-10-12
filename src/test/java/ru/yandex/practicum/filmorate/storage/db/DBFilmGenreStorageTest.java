@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -22,6 +22,8 @@ public class DBFilmGenreStorageTest {
     private final DBFilmGenreStorage filmGenreStorage;
 
     private final DBFilmStorage filmStorage;
+
+    private final DBGenreStorage genreStorage;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -41,7 +43,7 @@ public class DBFilmGenreStorageTest {
         filmStorage.addFilm(film);
         filmGenreStorage.addFilmGenres(film);
 
-        Set<Genre> filmWithGenres = filmStorage.getFilm(film.getId()).getGenres();
+        List<Genre> filmWithGenres = genreStorage.getGenresByFilm(film);
         assert filmWithGenres.size() == 2;
         assert filmWithGenres.contains(Genre
                 .builder()

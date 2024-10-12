@@ -34,7 +34,7 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User createUser(User user) throws ValidationException {
+    public User createUser(User user) {
         validate(user);
 
         userStorage.addUser(user);
@@ -42,7 +42,7 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(User user) throws ValidationException {
+    public User updateUser(User user) {
         validate(user);
 
         getUser(user.getId());
@@ -52,7 +52,7 @@ public class UserService {
         return user;
     }
 
-    private void validate(User user) throws ValidationException {
+    private void validate(User user) {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (violations.size() > 0) {
             violations.forEach(error -> {

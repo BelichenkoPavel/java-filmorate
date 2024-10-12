@@ -9,14 +9,13 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
 public class Film {
     @Nullable
-    private int id;
+    private Long id;
 
     @NotBlank(message = "name не может быть пустым")
     private String name;
@@ -31,7 +30,11 @@ public class Film {
     @Min(value = 1, message = "duration не может быть меньше 1")
     private Integer duration;
 
+    private MPA mpa;
+
     private Set<Long> likes;
+
+    private Set<Genre> genres;
 
     public Set<Long> getLikes() {
         if (likes == null) {

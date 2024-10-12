@@ -3,15 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +25,16 @@ public class UserService {
 
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    private InMemoryUserStorage userStorage;
-
     @Autowired
-    public UserService(InMemoryUserStorage userService) {
-        this.userStorage = userService;
+    @NonNull
+    @Qualifier("dbUserStorage")
+    private UserStorage userStorage;
+
+    public UserService(@Qualifier("dbUserStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
-    public User createUser(User user) throws ValidationException {
+    public User createUser(User user) {
         validate(user);
 
         userStorage.addUser(user);
@@ -38,17 +42,17 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(User user) throws ValidationException {
+    public User updateUser(User user) {
         validate(user);
 
-        getUser((long) user.getId());
+        getUser(user.getId());
 
         userStorage.updateUser(user);
 
         return user;
     }
 
-    private void validate(User user) throws ValidationException {
+    private void validate(User user) {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (violations.size() > 0) {
             violations.forEach(error -> {
@@ -83,52 +87,26 @@ public class UserService {
         User user = getUser(userId);
         User friend = getUser(friendId);
 
-        user.addFriend(friend);
-        friend.addFriend(user);
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
+        userStorage.addFriend(user, friend);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         User user = getUser(userId);
         User friend = getUser(friendId);
 
-        user.deleteFriend(friend);
-        friend.deleteFriend(user);
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
+        userStorage.deleteFriend(user, friend);
     }
 
     public ArrayList<User> getFriends(Long userId) {
         User user = getUser(userId);
 
-        Set<Long> friends = user.getFriends();
-        ArrayList<User> friendsList = new ArrayList<>();
-
-        for (Long friendId : friends) {
-            User friend = getUser(friendId);
-            friendsList.add(friend);
-        }
-
-        return friendsList;
+        return userStorage.getFriends(user);
     }
 
     public ArrayList<User> getFriendsOfFriends(Long userId, Long otherId) {
         User user = userStorage.getUser(userId);
         User other = userStorage.getUser(otherId);
 
-        Set<Long> friends = user.getFriends();
-        Set<Long> otherFriends = other.getFriends();
-
-        ArrayList<User> friendsList = new ArrayList<>();
-
-        for (Long friendId : friends) {
-            User friend = userStorage.getUser(friendId);
-            if (otherFriends.contains(friendId)) {
-                friendsList.add(friend);
-            }
-        }
-
-        return friendsList;
+        return userStorage.getFriendsOfFriends(user, other);
     }
 }

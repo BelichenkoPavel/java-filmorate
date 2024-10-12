@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 @Builder
 public class User {
-    private int id;
+    private Long id;
 
     @NotNull(message = "email обязательно")
     @Pattern(regexp = "^([\\w+._-]+@[\\w._-]+\\.[\\w_-]+)$", message = "email не соответствует формату")
@@ -44,7 +44,7 @@ public class User {
             friends = new HashSet<>();
         }
 
-        friends.add((long) friend.getId());
+        friends.add(friend.getId());
     }
 
     public void deleteFriend(User friend) {
@@ -52,6 +52,6 @@ public class User {
             friends = new HashSet<>();
         }
 
-        friends.remove((long) friend.getId());
+        friends.remove(friend.getId());
     }
 }

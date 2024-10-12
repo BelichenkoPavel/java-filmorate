@@ -11,12 +11,12 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class FilmService {
@@ -26,36 +26,98 @@ public class FilmService {
 
     private LocalDate minDate = LocalDate.of(1895, 12, 28);
 
+    @Autowired
     private FilmStorage filmStorage;
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, UserService userService) {
-        this.filmStorage = filmStorage;
-        this.userService = userService;
-    }
+    private GenreStorage genreStorage;
+
+    @Autowired
+    private FilmGenreStorage filmGenreStorage;
+
+    @Autowired
+    private MPAStorage mpaStorage;
+
+    @Autowired
+    private FilmLikeStorage filmLikeStorage;
 
     public Film addFilm(Film film) {
         validate(film);
 
+        MPA mpa = mpaStorage.getById(film.getMpa().getId());
+
+        if (mpa == null) {
+            throw new ValidationException("MPA with id = " + film.getMpa().getId() + "not found");
+        }
+
+        List<Genre> genres;
+        if (film.getGenres() != null) {
+            genres = genreStorage.getGenres(film);
+
+            if (genres.size() != film.getGenres().size()) {
+                throw new ValidationException("Genres not found");
+            }
+        } else {
+            film.setGenres(new HashSet<>());
+            genres = new ArrayList<>();
+        }
+
         filmStorage.addFilm(film);
+
+        filmGenreStorage.addFilmGenres(film);
+
+        film.setMpa(mpa);
+        film.setGenres(new LinkedHashSet<>(genres));
 
         return film;
     }
 
-    public Film updateFilm(Film film) throws ValidationException {
+    public Film updateFilm(Film film) {
         validate(film);
 
-        getFilm((long) film.getId());
+        getFilm(film.getId());
+
+        MPA mpa = mpaStorage.getById(film.getMpa().getId());
+
+        if (mpa == null) {
+            throw new ValidationException("MPA with id = " + film.getMpa().getId() + "not found");
+        }
+
+        List<Genre> genres;
+        if (film.getGenres() != null) {
+            genres = genreStorage.getGenres(film);
+
+            if (genres.size() != film.getGenres().size()) {
+                throw new ValidationException("Genres not found");
+            }
+        } else {
+            film.setGenres(new HashSet<>());
+            genres = new ArrayList<>();
+        }
 
         filmStorage.updateFilm(film);
+
+        filmGenreStorage.addFilmGenres(film);
+
+        film.setMpa(mpa);
+        film.setGenres(new HashSet<>(genres));
 
         return film;
     }
 
     public List<Film> getFilms() {
-        return filmStorage.getAllFilms();
+        List<Film> films = filmStorage.getAllFilms();
+
+        films.forEach(film -> {
+            List<Genre> genres = genreStorage.getGenresByFilm(film);
+
+            film.setGenres(new HashSet<>(genres));
+        });
+
+        return films;
     }
 
     public Film getFilm(Long filmId) {
@@ -66,10 +128,13 @@ public class FilmService {
             throw new NotFoundException("Film with id " + filmId + " not found");
         }
 
+        List<Genre> genres = genreStorage.getGenresByFilm(film);
+        film.setGenres(new HashSet<>(genres));
+
         return film;
     }
 
-    private void validate(Film film) throws ValidationException {
+    private void validate(Film film) {
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         if (violations.size() > 0) {
             violations.forEach(error -> {
@@ -87,40 +152,27 @@ public class FilmService {
 
     public void likeFilm(Long id, Long userId) {
         userService.getUser(userId);
-        Film film = getFilm(id);
-
-        film.addLike(userId);
-
-        updateFilm(film);
+        filmLikeStorage.addLike(id, userId);
     }
 
     public void deleteLikeFilm(Long id, Long userId) {
         userService.getUser(userId);
-        Film film = getFilm(id);
-
-        film.removeLike(userId);
-
-        updateFilm(film);
+        filmLikeStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        List<Film> films = getFilms();
-
-        films.sort((film1, film2) -> {
-            int likes1 = film1.getLikes().size();
-            int likes2 = film2.getLikes().size();
-
-            return likes2 - likes1;
-        });
-
         if (count != null) {
             count = 10;
         }
 
-        if (count > films.size()) {
-            count = films.size();
-        }
+        List<Film> films = filmStorage.getPopularFilms(count);
 
-        return films.subList(0, count);
+        films.forEach(film -> {
+            List<Genre> genres = genreStorage.getGenresByFilm(film);
+
+            film.setGenres(new HashSet<>(genres));
+        });
+
+        return films;
     }
 }
